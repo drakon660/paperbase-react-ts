@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import Header from './Header';
 import Content from './Content';
-import Navigator2 from './Navigator2';
+import Navigation from './Navigation';
 
 function Copyright() {
   return (
@@ -183,14 +183,14 @@ function App() {
           sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
         >
           {isSmUp ? null : (
-            <Navigator2
+            <Navigation
               PaperProps={{ style: { width: drawerWidth } }}
               variant="temporary"
               open={mobileOpen}
               onClose={handleDrawerToggle}
             />
           )}
-          <Navigator2
+          <Navigation
             PaperProps={{ style: { width: drawerWidth } }}
             sx={{ display: { sm: 'block', xs: 'none' } }}
           />
