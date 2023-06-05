@@ -24,11 +24,11 @@ export async function createContact() {
   return contact;
 }
 
-export async function getContact(id:string) {
+export async function getContact(id:string | undefined) {
   await fakeNetwork(`contact:${id}`);
   let contacts = await localforage.getItem<Contact[]>("contacts");
   let contact = contacts?.find(contact => contact.id === id);
-  return contact ?? null;
+  return contact;
 }
 
 export async function updateContact(id:string, updates:any) {
@@ -62,17 +62,8 @@ let fakeCache : {
 };
 
 async function fakeNetwork(key?:any) {
-//   if (!key) {
-//     fakeCache = {       
-//     };
-//   }
-
-//   if (fakeCache[key]) {
-//     return;
-//   }
-
-//   fakeCache[key] = true;
+  
   return new Promise(res => {
-    setTimeout(res, Math.random() * 800);
+    setTimeout(res, Math.random() * 500);
   });
 }
