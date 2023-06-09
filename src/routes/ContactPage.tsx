@@ -1,29 +1,45 @@
-import { ActionFunction, Form, LoaderFunction, useFetcher, useLoaderData, useParams } from "react-router-dom";
+import { ActionFunction, Form, LoaderFunction, useFetcher, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Contact } from "../Contact";
-import { getContact, updateContact } from "../Contacts";
+import { useAppDispatch, useAppSelector } from "../store";
+import { deleteContact, fetchContacts, selectContactById } from "../contactSlice";
+import { useEffect } from "react";
 
 interface Params {
   contactId: string
 }
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const typedParams = params as unknown as Params;
-  let formData = await request.formData();
-  return updateContact(typedParams.contactId, {
-    favorite: formData.get("favorite") === "true",
-  });
-}
+// export const action: ActionFunction = async ({ request, params }) => {
+//   const typedParams = params as unknown as Params;
+//   let formData = await request.formData();
+//   return updateContact(typedParams.contactId, {
+//     favorite: formData.get("favorite") === "true",
+//   });
+// }
 
-export const loader : LoaderFunction = async ({params}) => {  
-  const typedParams = params as unknown as Params;
-  const contact = await getContact(typedParams.contactId);  
-  return contact;
-}
+// export const loader : LoaderFunction = async ({params}) => {  
+//   const typedParams = params as unknown as Params;
+//   const contact = await getContact(typedParams.contactId);  
+//   return contact;
+// }
 
-export default function ContactPage() {  
-  const contact = useLoaderData() as Contact;
+export default function ContactPage() {
+  const { contactId } = useParams();
+
+  const contact = useAppSelector(selectContactById(contactId));
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  
+  const deleteContactOnClick = () => {
+    dispatch(deleteContact(contactId));
+    navigate('/');
+  }
+
+  const editContactOnClick = () => {   
+    navigate(`edit`);
+  }
 
   return (
+    contact &&
     <div id="contact">
       <div>
         <img
@@ -43,7 +59,6 @@ export default function ContactPage() {
           )}{" "}
           <Favorite contact={contact} />
         </h1>
-
         {contact.twitter && (
           <p>
             <a
@@ -54,35 +69,17 @@ export default function ContactPage() {
             </a>
           </p>
         )}
-
         {contact.notes && <p>{contact.notes}</p>}
-        
         <div>
-          <Form action="edit">
-            <button type="submit">Edit</button>
-          </Form>
-          <Form
-            method="post"
-            action="destroy"
-            onSubmit={(event) => {
-              if (
-                !window.confirm(
-                  "Please confirm you want to delete this record."
-                )
-              ) {
-                event.preventDefault();
-              }
-            }}
-          >
-            <button type="submit">Delete</button>
-          </Form>
+          <button onClick={editContactOnClick}>Edit</button>
+          <button onClick={deleteContactOnClick}>Delete</button>
         </div>
       </div>
     </div>
   );
 }
 
-function Favorite(props: {contact:Contact}) {
+function Favorite(props: { contact: Contact }) {
   const fetcher = useFetcher();
   // yes, this is a `let` for later
   let favorite = props.contact.favorite;
@@ -90,20 +87,20 @@ function Favorite(props: {contact:Contact}) {
   if (fetcher.formData) {
     favorite = fetcher.formData.get("favorite") === "true";
   }
-  
+
   return (
     <fetcher.Form method="post">
-    <button
-      name="favorite"
-      value={favorite ? "false" : "true"}
-      aria-label={
-        favorite
-          ? "Remove from favorites"
-          : "Add to favorites"
-      }
-    >
-      {favorite ? "★" : "☆"}
-    </button>
-  </fetcher.Form>
+      <button
+        name="favorite"
+        value={favorite ? "false" : "true"}
+        aria-label={
+          favorite
+            ? "Remove from favorites"
+            : "Add to favorites"
+        }
+      >
+        {favorite ? "★" : "☆"}
+      </button>
+    </fetcher.Form>
   );
 }

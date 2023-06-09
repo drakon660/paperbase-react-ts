@@ -1,48 +1,67 @@
-import React from 'react';
+import React, { Children } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Root, { loader as rootLoader, action as rootAction } from "./routes/Root";
+//import Root, { loader as rootLoader, action as rootAction } from "./routes/Root";
+import Root from "./routes/Root";
 import ErrorPage from './error-page';
 import ContactPage from './routes/ContactPage';
-import Contact, {
-  loader as contactLoader,
-  action as contactAction
-} from "./routes/ContactPage";
-import EditContact, { editAction } from './routes/Edit';
+import NewContact from './routes/Edit';
 import { destroyAction } from './routes/Destroy';
+import { Provider } from 'react-redux';
+import store from './store';
+import { fetchContacts } from './contactSlice';
+import { NotFound } from './routes/NotFound';
+import EditContact from './routes/Edit';
+
+store.dispatch(fetchContacts());
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root/>,
+    element: <Root />,
     errorElement: <ErrorPage />,    
-    loader: rootLoader,
-    action: rootAction,
+    //loader: rootLoader,
+    //action: rootAction,
     children: [
       {
-        index: true,
-        element: "empty page"
-      },
-      {
-        path: "contacts/:contactId",
-        element: <ContactPage />,     
-        loader: contactLoader, 
-        action : contactAction        
-      },
-      {
-        path: "contacts/:contactId/edit",
-        element: <EditContact />,
-        loader: contactLoader,
-        action: editAction
-      },
-      {
-        path: "contacts/:contactId/destroy",
-        action: destroyAction,
-        errorElement: <div>Oops! There was an error.</div>,
-      },
+        errorElement: <div>Oops! There was an error.</div>,        
+        children: [
+          {
+            index: true,
+            element: "empty page"
+          },
+          {
+            path: "contacts/:contactId",
+            element: <ContactPage />,            
+            //loader: contactLoader,
+            //action: contactAction
+          },   
+          {
+            path: "contacts/:contactId/edit",
+            element: <EditContact />,            
+            //loader: contactLoader,
+            //action: contactAction
+          },        
+          {
+            path: "notfound",
+            element: <NotFound />,
+            //loader: contactLoader,
+            //action: editAction
+          },             
+          {
+            path: "contacts/new",
+            element: <NewContact />,
+            //loader: contactLoader,
+            //action: editAction
+          },
+          {
+            path: "contacts/:contactId/destroy",
+            action: destroyAction,          
+          }],
+      }
     ],
   }
 ]);
@@ -51,8 +70,10 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <React.StrictMode>    
-    <RouterProvider router={router} />
+  <React.StrictMode>
+     <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
   </React.StrictMode>
 );
 

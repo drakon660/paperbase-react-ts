@@ -1,85 +1,69 @@
-import { LoaderFunction, Outlet, redirect, useLoaderData, useNavigation } from "react-router";
-import { Form, Link, NavLink, useSubmit } from "react-router-dom";
+import { LoaderFunction, Navigate, Outlet, redirect, useLoaderData, useMatch, useNavigate, useNavigation } from "react-router";
+import { Form, NavLink, useSubmit } from "react-router-dom";
 import { createContact, getContacts } from "../Contacts";
 import { Contact } from "../Contact";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../store";
+import { fetchContacts, filter, selectContacts } from "../contactSlice";
+import { Control, useForm, useWatch } from "react-hook-form";
+// export const loader : LoaderFunction = async ({request}) => {
+//   const url = new URL(request.url);  
+//   const q = url.searchParams.get("q") || "";
+//   const contacts = await getContacts(q);
+//   console.log({ contacts , q });
+//   return { contacts , q };
+// }
 
-export const loader : LoaderFunction = async ({request}) => {
-  const url = new URL(request.url);  
-  const q = url.searchParams.get("q") || "";
-  const contacts = await getContacts(q);
-  console.log({ contacts , q });
-  return { contacts , q };
+// export async function action() {
+//   const contact = await createContact();
+//   return redirect(`/contacts/${contact.id}/edit`);
+// }
+
+interface SearchInput {
+  query: string;
 }
 
-export async function action() {
-  const contact = await createContact();
-  return redirect(`/contacts/${contact.id}/edit`);
+interface FormInputs {
+  firstName: string;
 }
 
 export default function Root() {
-  const { contacts, q } = useLoaderData() as { contacts: Contact[], q: string };
-  const [query, setQuery] = useState(q);
-  const submit = useSubmit();
-   const navigation = useNavigation();
+  const contacts = useAppSelector(selectContacts);
+  const navigation = useNavigation();
+  const navigate = useNavigate();
 
-   const searching =
-   navigation.location &&
-   new URLSearchParams(navigation.location.search).has(
-     "q"
-   );
+  const { register, control } = useForm<SearchInput>();
 
-   useEffect(() => {
-    setQuery(q);
-  }, [q]);
+  const query = useWatch({
+    control,
+    name: "query", // without supply name will watch the entire form, or ['firstName', 'lastName'] to watch both
+    defaultValue: "" // default value before the render
+  });
 
-    return (
-      <>
-        <div id="sidebar">
-          <h1>React Router Contacts</h1>
-          <div>
-            <Form id="search-form" role="search">
-              <input
-                id="q"
-                aria-label="Search contacts"
-                placeholder="Search"
-                type="search"
-                name="q"
-                className={searching ? "loading" : ""}
-                value={query}
-                onChange={(e) => {         
-                  const isFirstSearch = q == null;         
-                  submit(e.currentTarget.form, {
-                    replace: !isFirstSearch
-                  });
-                }}
-              />
-              <div
-                id="search-spinner"
-                aria-hidden
-                hidden={!searching}
-              />
-              <div
-                className="sr-only"
-                aria-live="polite"
-              ></div>
-            </Form>
-            <Form method="post">
-              <button type="submit">New</button>
-            </Form>
-          </div>
-          <nav>
-          {contacts.length ? (
+  const filteredContacts = contacts.filter(x => x.first.includes(query));
+
+  return (
+    <>
+      <div id="sidebar">
+        <h1>React Router Contacts</h1>
+        <div>
+          <form id="search-form" role="search">
+            <input {...register("query")} />                        
+          </form>
+          <button onClick={() => navigate('contacts/new')}>New</button>
+        </div>
+        <nav>
+          {filteredContacts.length ? (
             <ul>
-              {contacts.map((contact:Contact) => (
+              {filteredContacts.map((contact: Contact) => (
                 <li key={contact.id}>
                   <NavLink to={`contacts/${contact.id}`} className={({ isActive, isPending }) =>
-                      isActive
-                        ? "active"
-                        : isPending
+                    isActive
+                      ? "active"
+                      : isPending
                         ? "pending"
                         : ""
-                    }>
+                  }>
                     {contact.first || contact.last ? (
                       <>
                         {contact.first} {contact.last}
@@ -92,16 +76,16 @@ export default function Root() {
                 </li>
               ))}
             </ul>
-           ) : (
+          ) : (
             <p>
               <i>No contacts</i>
             </p>
           )}
         </nav>
-        </div>
-        <div id="detail" className={
-          navigation.state === "loading" ? "loading" : ""
-        }><Outlet /></div>
-      </>
-    );
-  }
+      </div>
+      <div id="detail" className={
+        navigation.state === "loading" ? "loading" : ""
+      }><Outlet /></div>
+    </>
+  );
+}

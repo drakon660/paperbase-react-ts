@@ -1,7 +1,7 @@
 import { ActionFunction, Form, redirect, useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { Contact } from "../Contact";
 import { useAppDispatch, useAppSelector } from "../store";
-import { addContact, deleteContact, editContact, fetchContacts, selectContactById } from "../contactSlice";
+import { addContact, deleteContact, fetchContacts, selectContactById } from "../contactSlice";
 import { useForm } from "react-hook-form";
 
 
@@ -19,11 +19,7 @@ interface Params {
 //   }
 
 
-export default function EditContact() {
-  const { contactId } = useParams();
-
-  const contact = useAppSelector(selectContactById(contactId));
-
+export default function NewContact() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -31,14 +27,10 @@ export default function EditContact() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<Contact>({
-     defaultValues:{
-      ...contact
-     }
-  });
+  } = useForm<Contact>();
 
   const onSubmit = handleSubmit((data) => {
-    dispatch(editContact(data))    
+    dispatch(addContact(data))    
     navigate('/');
   });
   
@@ -62,8 +54,7 @@ export default function EditContact() {
         <span>Notes</span>
     <input {...register("notes")} />
     </label> <p>
-    <input type="submit" /> 
-    <button onClick={()=>navigate(-1)}>Cancel</button>   
+    <input type="submit" />
     </p>
   </form>   
     </div>
