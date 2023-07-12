@@ -22,12 +22,12 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
-    errorElement: <ErrorPage />,    
+    errorElement: <ErrorPage />,
     //loader: rootLoader,
     //action: rootAction,
     children: [
       {
-        errorElement: <div>Oops! There was an error.</div>,        
+        errorElement: <div>Oops! There was an error.</div>,
         children: [
           {
             index: true,
@@ -35,22 +35,22 @@ const router = createBrowserRouter([
           },
           {
             path: "contacts/:contactId",
-            element: <ContactPage />,            
+            element: <ContactPage />,
             //loader: contactLoader,
             //action: contactAction
-          },   
+          },
           {
             path: "contacts/:contactId/edit",
-            element: <EditContact />,            
+            element: <EditContact />,
             //loader: contactLoader,
             //action: contactAction
-          },        
+          },
           {
             path: "notfound",
             element: <NotFound />,
             //loader: contactLoader,
             //action: editAction
-          },             
+          },
           {
             path: "contacts/new",
             element: <NewContact />,
@@ -59,7 +59,7 @@ const router = createBrowserRouter([
           },
           {
             path: "contacts/:contactId/destroy",
-            action: destroyAction,          
+            action: destroyAction,
           }],
       }
     ],
@@ -71,9 +71,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-     <Provider store={store}>
-        <RouterProvider router={router} />
-      </Provider>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>
 );
 

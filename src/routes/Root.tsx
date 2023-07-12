@@ -23,10 +23,6 @@ interface SearchInput {
   query: string;
 }
 
-interface FormInputs {
-  firstName: string;
-}
-
 export default function Root() {
   const contacts = useAppSelector(selectContacts);
   const navigation = useNavigation();

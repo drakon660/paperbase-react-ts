@@ -56,7 +56,6 @@ const contactSlice = createSlice({
       if(action.payload.length)
         state.contacts = state.contacts.filter(x=>x.first.includes(action.payload));
     },
-
   },
   extraReducers: (builder) => {    
     // Add reducers for additional action types here, and handle loading state as needed

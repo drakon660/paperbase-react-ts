@@ -18,7 +18,6 @@ interface Params {
 //     return redirect(`/contacts/${params.contactId}`);
 //   }
 
-
 export default function EditContact() {
   const { contactId } = useParams();
 
